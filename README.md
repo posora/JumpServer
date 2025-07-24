@@ -1,5 +1,3 @@
-当然可以，下面是你提供的 JumpServer Helm 部署笔记的 Markdown 内容，我已经将不合法的 HTML 标签（如 `<h1>`, `<h2>`, `<h3>` 等）转换为了合法的 Markdown 标题格式，原有代码块也已修复和保留：
-
 ---
 
 # 📘 JumpServer Helm 部署笔记（含 MySQL 和 Redis）
@@ -273,4 +271,5 @@ The Installation is Complete.
   username: admin  password: ChangeMe
 ```
 
-![JumpServer 登录页面](https://cdn.nlark.com/yuque/0/2025/png/56691720/1753320501056-8342901f-e811-41c9-bb41-9be5757b2bee.png)
+![JumpServer 登录页面]
+https://i.mji.rip/2025/07/24/e152bfd28cc304c2db1a30d2c79a259e.png
