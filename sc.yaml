@@ -1,0 +1,11 @@
+# 创建一个storageclass资源
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: jms-sc
+provisioner: nfs-client
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+mountOptions:
+  - hard
+  - nfsvers=4

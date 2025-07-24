@@ -1,0 +1,41 @@
+{{- if .Values.ingress.enabled }}
+{{- $fullName := include "jumpserver.fullname" $ }}
+{{- $webPort := .Values.web.service.web.port }}
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: "{{ $fullName }}-ingress"
+  labels:
+    {{- include "jumpserver.labels" $ | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  # 添加ingressClassName
+  ingressClassName: {{ .Values.ingress.className | default "nginx" }}
+{{- if .Values.ingress.tls }}
+  tls:
+  {{- range .Values.ingress.tls }}
+    - hosts:
+      {{- range .hosts }}
+        - {{ . | quote }}
+      {{- end }}
+      secretName: {{ .secretName }}
+  {{- end }}
+{{- end }}
+  rules:
+  {{- range .Values.ingress.hosts }}
+    - host: {{ . }}
+      http:
+        paths:
+        - pathType: Prefix
+          path: /
+          backend:
+            service:
+              name: '{{ include "jumpserver.fullname" $ }}-jms-web'
+              port:
+                number: {{ $webPort }}
+  {{- end }}
+{{- end }}

@@ -1,0 +1,27 @@
+The Installation is Complete.
+    --------------------------------------------------
+    | Documentation:    https://docs.jumpserver.org/ |
+    | Official Website: https://www.jumpserver.org/  |
+    --------------------------------------------------
+
+       ██╗██╗   ██╗███╗   ███╗██████╗ ███████╗███████╗██████╗ ██╗   ██╗███████╗██████╗
+       ██║██║   ██║████╗ ████║██╔══██╗██╔════╝██╔════╝██╔══██╗██║   ██║██╔════╝██╔══██╗
+       ██║██║   ██║██╔████╔██║██████╔╝███████╗█████╗  ██████╔╝██║   ██║█████╗  ██████╔╝
+  ██   ██║██║   ██║██║╚██╔╝██║██╔═══╝ ╚════██║██╔══╝  ██╔══██╗╚██╗ ██╔╝██╔══╝  ██╔══██╗
+  ╚█████╔╝╚██████╔╝██║ ╚═╝ ██║██║     ███████║███████╗██║  ██║ ╚████╔╝ ███████╗██║  ██║
+   ╚════╝  ╚═════╝ ╚═╝     ╚═╝╚═╝     ╚══════╝╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚══════╝╚═╝  ╚═╝
+
+                                                                   Version: {{ .Chart.AppVersion }}
+
+1. Web access:
+{{- if .Values.ingress.enabled }}
+{{- range $host := .Values.ingress.hosts }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host }}
+  username: admin  password: ChangeMe
+{{- end }}
+{{- end }}
+
+{{- if eq .Values.koko.service.type "LoadBalancer" }}
+2. Access the Jumpserver SSH server by running these commands:
+  ssh -p {{ .Values.koko.service.ssh.port }} admin@{{ .Values.koko.service.ssh.loadBalancerIP }}
+{{- end }}

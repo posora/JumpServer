@@ -1,0 +1,32 @@
+# my-values.yaml
+core:
+  config:
+    secretKey: GxrLH7rewfsRN8B9Zl6MEGD50Uou4LF6UV
+    bootstrapToken: ilR8RvAbK7lgRTxs
+
+global:
+  storageClass: jms-sc
+
+externalDatabase:
+  engine: mysql
+  host: jms-mysql
+  port: 3306
+  user: jumpserver
+  password: jumpserver
+  database: jumpserver
+
+externalRedis:
+  host: jms-redis-master
+  port: 6379
+  password: jumpserver
+
+# koko:
+#   service:
+#     type: NodePort
+#     nodePort: 32222
+# 
+# web:
+#   service:
+#     type: NodePort
+#     nodePort: 31111
+

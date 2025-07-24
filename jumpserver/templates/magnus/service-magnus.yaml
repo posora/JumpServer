@@ -1,0 +1,76 @@
+{{- if .Values.xpack.enabled }}
+{{- with .Values.magnus }}
+{{- $fullName := include "jumpserver.fullname" $ }}
+{{- $oraclePortStart := printf "%s" (include "jumpserver.magnus.oracle.port.start" $) | int }}
+{{- $oraclePortEnd := printf "%s" (include "jumpserver.magnus.oracle.port.end" $) | int}}
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ $fullName }}-jms-magnus"
+  labels:
+    {{- include "jumpserver.labels" $ | nindent 4 }}
+    {{- toYaml .labels | nindent 4 }}
+  annotations:
+    {{- toYaml .service.annotations | nindent 4 }}
+spec:
+  type: {{ .service.type }}
+  ports:
+    - port: {{ .service.web.port }}
+      targetPort: web
+      protocol: TCP
+      name: web
+    - port: {{ .service.mysql.port }}
+      {{- if eq .service.type "NodePort" }}
+      nodePort: {{ .service.mysql.port }}
+      {{- end }}
+      targetPort: 33061
+      protocol: TCP
+      name: mysql
+    - port: {{ .service.mariadb.port }}
+      {{- if eq .service.type "NodePort" }}
+      nodePort: {{ .service.mariadb.port }}
+      {{- end }}
+      targetPort: 33062
+      protocol: TCP
+      name: mariadb
+    - port: {{ .service.redis.port }}
+      {{- if eq .service.type "NodePort" }}
+      nodePort: {{ .service.redis.port }}
+      {{- end }}
+      targetPort: 63790
+      protocol: TCP
+      name: redis
+    - port: {{ .service.postgresql.port }}
+      {{- if eq .service.type "NodePort" }}
+      nodePort: {{ .service.postgresql.port }}
+      {{- end }}
+      targetPort: 54320
+      protocol: TCP
+      name: postgresql
+    - port: {{ .service.sqlserver.port }}
+      {{- if eq .service.type "NodePort" }}
+      nodePort: {{ .service.sqlserver.port }}
+      {{- end }}
+      targetPort: 14330
+      protocol: TCP
+      name: sqlserver
+    {{- range $port := untilStep $oraclePortStart $oraclePortEnd 1 }}
+    - port: {{ $port }}
+      {{- if eq $.Values.magnus.service.type "NodePort" }}
+      nodePort: {{ $port }}
+      {{- end }}
+      targetPort: oracle-{{ $port }}
+      protocol: TCP
+      name: oracle-{{ $port }}
+    {{- end }}
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+  selector:
+    app.kubernetes.io/name: {{ include "jumpserver.name" $ }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    {{- toYaml .labels | nindent 4 }}
+{{- end }}
+{{- end }}

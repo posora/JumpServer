@@ -1,0 +1,113 @@
+{{- if .Values.web.enabled }}
+{{- with .Values.web }}
+{{- $fullName := include "jumpserver.fullname" $ }}
+{{- $containerName := "jms-web" }}
+{{- $registryName := $.Values.global.imageRegistry | default .image.registry }}
+{{- $imageOwner :=  $.Values.global.imageOwner | default "jumpserver" }}
+{{- $imageName := "web" }}
+{{- $imageTag := $.Chart.AppVersion }}
+{{- $imageSuffix := $.Values.xpack.enabled | ternary "ee" "ce" }}
+{{- $imageWithTag := printf "%s/%s/%s:%s-%s" $registryName $imageOwner $imageName $imageTag $imageSuffix | quote }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ $fullName }}-{{ $containerName }}"
+  labels:
+    {{- include "jumpserver.labels" $ | nindent 4 }}
+    {{- toYaml .labels | nindent 4 }}
+spec:
+  replicas: {{ .replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "jumpserver.name" $ }}
+      app.kubernetes.io/instance: {{ $.Release.Name }}
+      {{- toYaml .labels | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "jumpserver.name" $ }}
+        app.kubernetes.io/instance: {{ $.Release.Name }}
+        {{- toYaml .labels | nindent 8 }}
+    spec:
+      {{- if $.Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{ toYaml $.Values.global.imagePullSecrets }}
+      {{- end }}
+      serviceAccountName: {{ template "jumpserver.serviceAccountName" $ }}
+      securityContext:
+        {{- toYaml .podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ $containerName }}
+          securityContext:
+            {{- toYaml .securityContext | nindent 12 }}
+          image: {{ $imageWithTag }}
+          imagePullPolicy: {{ .image.pullPolicy | quote }}
+          env:
+            {{- range $key, $val := .env }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+          ports:
+            - name: web
+              containerPort: {{ .service.web.port }}
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml .livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: "/etc/nginx/sites-enabled/jms.conf"
+              name: "jms-web-config"
+              subPath: "default.conf"
+            - mountPath: "/opt/jumpserver/data"
+              name: "jms-core-data"
+              {{- if $.Values.core.persistence.subPath }}
+              subPath: {{ $.Values.core.persistence.subPath | quote }}
+              {{- end }}
+            - mountPath: "/var/log/nginx"
+              name: "jms-web-logs"
+              {{- if .persistence.subPath }}
+              subPath: {{ .persistence.subPath | quote }}
+              {{- end }}
+          {{- with .volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      restartPolicy: Always
+      volumes:
+        - configMap:
+            name: '{{ include "jumpserver.fullname" $ }}-jms-web'
+          name: "jms-web-config"
+        - persistentVolumeClaim:
+            {{- if $.Values.core.persistence.existingClaim }}
+            claimName: {{ $.Values.core.persistence.existingClaim | quote }}
+            {{- else }}
+            claimName: '{{ $fullName }}-jms-core-data'
+            {{- end }}
+          name: "jms-core-data"
+        - persistentVolumeClaim:
+            {{- if .persistence.existingClaim }}
+            claimName: {{ .persistence.existingClaim | quote }}
+            {{- else }}
+            claimName: '{{ $fullName }}-jms-web-logs'
+            {{- end }}
+          name: "jms-web-logs"
+      {{- with .volumes }}
+        {{- tpl (toYaml .) $ | nindent 8 }}
+      {{- end }}
+      {{- with .nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+{{- end }}
+{{- end }}
