@@ -1,5 +1,3 @@
----
-
 # 📘 JumpServer Helm 部署笔记（含 MySQL 和 Redis）
 
 ## 一、准备工作
@@ -271,5 +269,5 @@ The Installation is Complete.
   username: admin  password: ChangeMe
 ```
 
-![JumpServer 登录页面]
-https://i.mji.rip/2025/07/24/e152bfd28cc304c2db1a30d2c79a259e.png
+## 七、最终效果界面
+![JumpServer 登录页面](https://i.mji.rip/2025/07/24/e152bfd28cc304c2db1a30d2c79a259e.png)
