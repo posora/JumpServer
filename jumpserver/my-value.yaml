@@ -20,13 +20,21 @@ externalRedis:
   port: 6379
   password: jumpserver
 
-# koko:
-#   service:
-#     type: NodePort
-#     nodePort: 32222
-# 
-# web:
-#   service:
-#     type: NodePort
-#     nodePort: 31111
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - jumpserver.zbj.com
+
+koko:
+  service:
+    type: NodePort
+    nodePort: 32222
+
+web:
+  service:
+    type: NodePort
+    nodePort: 31111
 

@@ -1,0 +1,7 @@
+global:
+  storageClass: jms-sc
+
+auth:
+  enabled: true
+  password: jumpserver
+

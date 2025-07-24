@@ -1,0 +1,9 @@
+global:
+  storageClass: jms-sc
+
+auth:
+  rootPassword: jumpserver
+  database: jumpserver
+  username: jumpserver
+  password: jumpserver
+
